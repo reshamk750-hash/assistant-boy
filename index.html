@@ -1,94 +1,91 @@
 
-
 <!DOCTYPE html>
 <html lang="hi">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Assistant Boy</title>
 <style>
 body {
-  margin: 0;
-  min-height: 100vh;
-  background: linear-gradient(135deg, #10152f, #183e65);
-  color: white;
-  font-family: Arial, sans-serif;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
+  margin: 0; min-height: 100vh;
+  background: linear-gradient(145deg,#10152f,#164a70);
+  color: white; font-family: Arial,sans-serif;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  text-align: center; padding: 20px;
+  box-sizing: border-box;
 }
-.avatar {
-  font-size: 100px;
-  animation: float 2s infinite ease-in-out;
-}
-@keyframes float {
-  50% { transform: translateY(-10px); }
-}
+.robot { font-size: 100px; animation: float 2s infinite ease-in-out; }
+@keyframes float { 50% { transform: translateY(-10px); } }
 h1 { color: #65e4ff; }
 button {
-  padding: 14px 22px;
-  margin: 8px;
-  border: 0;
-  border-radius: 12px;
-  font-size: 17px;
-  cursor: pointer;
+  border: 0; border-radius: 14px; padding: 14px 20px;
+  margin: 7px; font-size: 17px; cursor: pointer;
 }
 #listen { background: #36d6b0; }
-#speak { background: #65b5ff; }
-#status { color: #ffe28a; padding: 12px; }
+#talk { background: #65b5ff; }
+#status { color: #ffe28a; min-height: 24px; }
+#answer { max-width: 450px; line-height: 1.6; }
 </style>
 </head>
 <body>
-<div class="avatar">🤖</div>
+<div class="robot">🤖</div>
 <h1>Assistant Boy</h1>
-<p>नमस्ते दोस्त! मैं तुम्हारा AI असिस्टेंट हूँ।</p>
+<p>नमस्ते दोस्त! मैं तुम्हारा असिस्टेंट हूँ।</p>
 <button id="listen" onclick="listenNow()">🎤 बोलकर बात करो</button>
-<button id="speak" onclick="sayHello()">🔊 मेरी आवाज़ सुनो</button>
+<button id="talk" onclick="say('नमस्ते दोस्त! बताओ, मैं तुम्हारी क्या मदद करूँ?')">🔊 मुझे बुलाओ</button>
 <p id="status">तैयार हूँ, दोस्त!</p>
+<p id="answer">मुझसे हिंदी में बात करो।</p>
 
 <script>
 function say(text) {
-  if (!("speechSynthesis" in window)) {
-    document.getElementById("status").textContent =
-      "इस ब्राउज़र में आवाज़ उपलब्ध नहीं है।";
-    return;
+  document.getElementById("answer").textContent = text;
+  if ("speechSynthesis" in window) {
+    speechSynthesis.cancel();
+    const msg = new SpeechSynthesisUtterance(text);
+    msg.lang = "hi-IN";
+    msg.rate = 0.9;
+    speechSynthesis.speak(msg);
   }
-  speechSynthesis.cancel();
-  const msg = new SpeechSynthesisUtterance(text);
-  msg.lang = "hi-IN";
-  msg.rate = 0.9;
-  speechSynthesis.speak(msg);
 }
-function sayHello() {
-  say("नमस्ते दोस्त! मैं Assistant Boy हूँ। बताओ, मैं तुम्हारी क्या मदद करूँ?");
-}
+
 function listenNow() {
-  const SR = window.SpeechRecognition ||
-             window.webkitSpeechRecognition;
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
   if (!SR) {
-    document.getElementById("status").textContent =
-      "आवाज़ पहचानने के लिए Chrome में अनुमति या समर्थित ब्राउज़र चाहिए।";
-    say("दोस्त, अभी आवाज़ पहचानने की सुविधा उपलब्ध नहीं है।");
+    say("दोस्त, इस ब्राउज़र में आवाज़ पहचानने की सुविधा उपलब्ध नहीं है।");
     return;
   }
   const rec = new SR();
   rec.lang = "hi-IN";
   rec.onstart = () => {
-    document.getElementById("status").textContent =
-      "सुन रहा हूँ, दोस्त...";
+    document.getElementById("status").textContent = "सुन रहा हूँ...";
   };
   rec.onresult = (event) => {
-    const words = event.results[0][0].transcript;
-    document.getElementById("status").textContent =
-      "तुमने कहा: " + words;
-    say("तुमने कहा, " + words);
+    const words = event.results[0][0].transcript.toLowerCase();
+    document.getElementById("status").textContent = "तुमने कहा: " + words;
+    let reply;
+    if (words.includes("hello") || words.includes("हेलो") || words.includes("नमस्ते")) {
+      reply = "हेलो दोस्त! मैं Assistant Boy हूँ। बताओ, मैं तुम्हारी क्या मदद करूँ?";
+    } else if (words.includes("नाम")) {
+      reply = "मेरा नाम Assistant Boy है। मैं तुम्हारा निजी असिस्टेंट हूँ।";
+    } else if (words.includes("कैसे हो")) {
+      reply = "मैं बढ़िया हूँ दोस्त! तुम कैसे हो?";
+    } else if (words.includes("समय") || words.includes("टाइम")) {
+      reply = "दोस्त, सही समय देखने के लिए अपने टैबलेट की घड़ी देखो।";
+    } else if (words.includes("धन्यवाद") || words.includes("शुक्रिया")) {
+      reply = "तुम्हारा स्वागत है दोस्त! मैं मदद के लिए यहाँ हूँ।";
+    } else if (words.includes("बाय") || words.includes("अलविदा")) {
+      reply = "ठीक है दोस्त! फिर मिलेंगे।";
+    } else {
+      reply = "दोस्त, मैंने सुना: " + words + "। मैं अभी सीख रहा हूँ।";
+    }
+    say(reply);
   };
   rec.onerror = () => {
     document.getElementById("status").textContent =
       "माइक की अनुमति जाँचो और फिर कोशिश करो।";
   };
+  rec.onend = () => {};
   rec.start();
 }
 </script>
