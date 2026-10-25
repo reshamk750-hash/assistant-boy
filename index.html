@@ -1,1 +1,96 @@
 
+
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assistant Boy</title>
+<style>
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #10152f, #183e65);
+  color: white;
+  font-family: Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+}
+.avatar {
+  font-size: 100px;
+  animation: float 2s infinite ease-in-out;
+}
+@keyframes float {
+  50% { transform: translateY(-10px); }
+}
+h1 { color: #65e4ff; }
+button {
+  padding: 14px 22px;
+  margin: 8px;
+  border: 0;
+  border-radius: 12px;
+  font-size: 17px;
+  cursor: pointer;
+}
+#listen { background: #36d6b0; }
+#speak { background: #65b5ff; }
+#status { color: #ffe28a; padding: 12px; }
+</style>
+</head>
+<body>
+<div class="avatar">🤖</div>
+<h1>Assistant Boy</h1>
+<p>नमस्ते दोस्त! मैं तुम्हारा AI असिस्टेंट हूँ।</p>
+<button id="listen" onclick="listenNow()">🎤 बोलकर बात करो</button>
+<button id="speak" onclick="sayHello()">🔊 मेरी आवाज़ सुनो</button>
+<p id="status">तैयार हूँ, दोस्त!</p>
+
+<script>
+function say(text) {
+  if (!("speechSynthesis" in window)) {
+    document.getElementById("status").textContent =
+      "इस ब्राउज़र में आवाज़ उपलब्ध नहीं है।";
+    return;
+  }
+  speechSynthesis.cancel();
+  const msg = new SpeechSynthesisUtterance(text);
+  msg.lang = "hi-IN";
+  msg.rate = 0.9;
+  speechSynthesis.speak(msg);
+}
+function sayHello() {
+  say("नमस्ते दोस्त! मैं Assistant Boy हूँ। बताओ, मैं तुम्हारी क्या मदद करूँ?");
+}
+function listenNow() {
+  const SR = window.SpeechRecognition ||
+             window.webkitSpeechRecognition;
+  if (!SR) {
+    document.getElementById("status").textContent =
+      "आवाज़ पहचानने के लिए Chrome में अनुमति या समर्थित ब्राउज़र चाहिए।";
+    say("दोस्त, अभी आवाज़ पहचानने की सुविधा उपलब्ध नहीं है।");
+    return;
+  }
+  const rec = new SR();
+  rec.lang = "hi-IN";
+  rec.onstart = () => {
+    document.getElementById("status").textContent =
+      "सुन रहा हूँ, दोस्त...";
+  };
+  rec.onresult = (event) => {
+    const words = event.results[0][0].transcript;
+    document.getElementById("status").textContent =
+      "तुमने कहा: " + words;
+    say("तुमने कहा, " + words);
+  };
+  rec.onerror = () => {
+    document.getElementById("status").textContent =
+      "माइक की अनुमति जाँचो और फिर कोशिश करो।";
+  };
+  rec.start();
+}
+</script>
+</body>
+</html>
