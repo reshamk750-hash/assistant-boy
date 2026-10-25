@@ -1,4 +1,131 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Assistant Boy</title>
+<style>
+*{box-sizing:border-box}
+body{
+  margin:0;min-height:100vh;
+  font-family:Arial,sans-serif;
+  background:linear-gradient(160deg,#071b49,#0754a5,#08b9dc);
+  color:white;text-align:center;
+  padding:20px 14px 30px;
+}
+.card{
+  max-width:440px;margin:auto;
+  background:rgba(255,255,255,.10);
+  border:1px solid rgba(255,255,255,.25);
+  border-radius:28px;padding:22px 18px;
+  box-shadow:0 15px 40px #00102b66;
+}
+h1{margin:5px 0;font-size:32px}
+.sub{margin:8px 0 18px;color:#d9f6ff}
+.boy{
+  width:220px;height:220px;border-radius:50%;
+  margin:10px auto 18px;
+  display:flex;align-items:center;justify-content:center;
+  background:linear-gradient(145deg,#e5f8ff,#70d8ff);
+  border:5px solid #fff;
+  box-shadow:0 0 35px #4be7ff99;
+  font-size:145px;
+}
+.bubble{
+  background:white;color:#092d67;
+  padding:16px;border-radius:18px;
+  font-size:19px;line-height:1.5;
+  margin:15px 0;
+}
+button{
+  width:100%;border:0;border-radius:15px;
+  padding:15px;margin:7px 0;
+  font-size:18px;font-weight:bold;
+  background:#fff;color:#06458b;
+}
+button:active{transform:scale(.98)}
+#status{font-size:14px;color:#d5f8ff;margin:10px}
+footer{margin-top:18px;color:#c9f4ff;font-size:14px}
+</style>
+</head>
+<body>
+<div class="card">
+  <h1>🤖 Assistant Boy</h1>
+  <div class="sub">तुम्हारा अपना स्मार्ट दोस्त ❤️</div>
 
+  <div class="boy">🧑🏻‍💻</div>
+
+  <div class="bubble" id="answer">
+    नमस्ते भाई! 😊<br>
+    मैं हूँ Assistant Boy।<br>
+    बताओ, मैं तुम्हारी क्या मदद करूँ?
+  </div>
+
+  <button onclick="listen()">🎤 मुझसे बात करो</button>
+  <button onclick="speak()">🔊 मेरा जवाब सुनो</button>
+  <div id="status">तैयार हूँ, भाई!</div>
+  <footer>हम साथ मिलकर इसे और बेहतर बनाएँगे 💙</footer>
+</div>
+
+<script>
+let lastAnswer = "नमस्ते भाई! मैं हूँ Assistant Boy। बताओ, मैं तुम्हारी क्या मदद करूँ?";
+
+function speak(){
+  if(!('speechSynthesis' in window)){
+    document.getElementById('status').textContent =
+      'इस ब्राउज़र में बोलने की सुविधा उपलब्ध नहीं है।';
+    return;
+  }
+  speechSynthesis.cancel();
+  let msg = new SpeechSynthesisUtterance(lastAnswer);
+  msg.lang = 'hi-IN';
+  msg.rate = 0.9;
+  speechSynthesis.speak(msg);
+}
+
+function listen(){
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if(!SR){
+    document.getElementById('status').textContent =
+      'भाई, बोलने के लिए Chrome में माइक्रोफ़ोन इस्तेमाल करो।';
+    return;
+  }
+  const rec = new SR();
+  rec.lang = 'hi-IN';
+  rec.onstart = () => {
+    document.getElementById('status').textContent = 'सुन रहा हूँ, भाई... 🎧';
+  };
+  rec.onresult = (e) => {
+    const q = e.results[0][0].transcript.toLowerCase();
+    let a;
+    if(q.includes('नमस्ते') || q.includes('हेलो') || q.includes('हाय')){
+      a = 'नमस्ते भाई! 😊 कैसे हो?';
+    }else if(q.includes('तुम्हारा नाम') || q.includes('नाम क्या')){
+      a = 'मेरा नाम Assistant Boy है। मैं तुम्हारा दोस्त हूँ!';
+    }else if(q.includes('कैसे हो')){
+      a = 'मैं बढ़िया हूँ भाई! तुम कैसे हो?';
+    }else if(q.includes('धन्यवाद') || q.includes('थैंक यू')){
+      a = 'तुम्हारा स्वागत है भाई! ❤️';
+    }else if(q.includes('बाय') || q.includes('अलविदा')){
+      a = 'ठीक है भाई, फिर मिलेंगे!';
+    }else{
+      a = 'भाई, मैंने सुना: ' + e.results[0][0].transcript +
+          '। अभी मैं सीख रहा हूँ।';
+    }
+    lastAnswer = a;
+    document.getElementById('answer').textContent = a;
+    document.getElementById('status').textContent = 'तुम्हारी बात सुन ली! 😊';
+    speak();
+  };
+  rec.onerror = () => {
+    document.getElementById('status').textContent =
+      'माइक चालू नहीं हुआ। ब्राउज़र की माइक्रोफ़ोन अनुमति जाँचो।';
+  };
+  rec.start();
+}
+</script>
+</body>
+</html>
 <!DOCTYPE html>
 <html lang="hi">
 <head>
