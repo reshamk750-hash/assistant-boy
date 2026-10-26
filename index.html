@@ -219,3 +219,35 @@ function listenNow() {
 </script>
 </body>
 </html>
+import anthropic
+
+client = anthropic.Anthropic(api_key="YAHAN_APNI_API_KEY_DALEIN")
+
+# Assistant ka personality
+SYSTEM_PROMPT = """
+Tumhara naam Boy hai. Tum ek smart, dostana assistant ho.
+Hamesha Hindi mein jawab do. Jawab chhote aur saaf rakho.
+"""
+
+history = []
+
+print("Boy: Namaste! Main Boy hoon. Kya madad karun?")
+
+while True:
+    user_input = input("Aap: ")
+    if user_input.lower() in ["exit", "bye", "band"]:
+        print("Boy: Alvida!")
+        break
+
+    history.append({"role": "user", "content": user_input})
+
+    response = client.messages.create(
+        model="claude-sonnet-4-5",
+        max_tokens=1000,
+        system=SYSTEM_PROMPT,
+        messages=history,
+    )
+
+    reply = response.content[0].text
+    history.append({"role": "assistant", "content": reply})
+    print("Boy:", reply)
